@@ -23,6 +23,13 @@
 
 项目处于实验阶段，但已经适合本地浏览器辅助填表。
 
+## 分支说明
+
+- `main`：相对稳定的本地浏览器自动化版本，提供 snapshot/check/fill
+- `v0.2-llm-foundation`：LLM 辅助收据提取与报销草稿的实验分支
+
+如果你想直接使用当前的 LLM 版本，请切到 `v0.2-llm-foundation`。
+
 当前支持范围：
 
 - HKUST `Expense Claim for Student Form`

@@ -23,6 +23,13 @@ This project helps students turn a repetitive reimbursement workflow into a repr
 
 Experimental, but already usable for local browser-assisted drafting.
 
+## Branch Guide
+
+- `main`: stable local browser automation for snapshot/check/fill workflows
+- `v0.2-llm-foundation`: experimental branch for the LLM-assisted receipt extraction workflow
+
+If you specifically want the current LLM version, switch to `v0.2-llm-foundation`.
+
 Current scope:
 
 - HKUST `Expense Claim for Student Form`
