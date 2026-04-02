@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.svg" alt="HKUST Student Expense Agent" width="720">
+</p>
+
 # HKUST Student Expense Agent
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)

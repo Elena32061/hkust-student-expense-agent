@@ -1,0 +1,23 @@
+<svg width="1280" height="640" viewBox="0 0 1280 640" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">HKUST Student Expense Agent social preview</title>
+  <desc id="desc">A social preview card for an unofficial local-first browser automation helper for HKUST student expense claim eForms.</desc>
+  <rect width="1280" height="640" rx="32" fill="#10212D"/>
+  <path d="M0 518C165 470 305 481 420 552C535 623 683 635 865 556C1021 488 1132 446 1280 468V640H0V518Z" fill="#173346"/>
+  <circle cx="1074" cy="132" r="144" fill="#D97B2D" fill-opacity="0.16"/>
+  <circle cx="1184" cy="84" r="74" fill="#2E7364" fill-opacity="0.18"/>
+  <rect x="78" y="76" width="158" height="158" rx="32" fill="#FFF9F1"/>
+  <rect x="109" y="108" width="94" height="122" rx="18" fill="#10212D"/>
+  <rect x="124" y="130" width="64" height="9" rx="4.5" fill="#D97B2D"/>
+  <rect x="124" y="149" width="64" height="9" rx="4.5" fill="#D97B2D" fill-opacity="0.85"/>
+  <rect x="124" y="168" width="46" height="9" rx="4.5" fill="#D97B2D" fill-opacity="0.7"/>
+  <path d="M133 198L146 211L183 162" stroke="#2E7364" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M258 154C302 154 334 170 362 204C387 233 421 249 464 249" stroke="#D97B2D" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="258" cy="154" r="10" fill="#D97B2D"/>
+  <circle cx="464" cy="249" r="10" fill="#D97B2D"/>
+  <text x="78" y="320" fill="#FFF9F1" font-family="Avenir Next, Futura, Trebuchet MS, sans-serif" font-size="64" font-weight="800">HKUST Student</text>
+  <text x="78" y="392" fill="#FFF9F1" font-family="Avenir Next, Futura, Trebuchet MS, sans-serif" font-size="64" font-weight="800">Expense Agent</text>
+  <text x="80" y="444" fill="#D7DEE3" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="28" font-weight="500">Local-first browser automation for student expense claim eForms</text>
+  <rect x="80" y="491" width="246" height="42" rx="21" fill="#FFF9F1"/>
+  <text x="110" y="519" fill="#10212D" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="22" font-weight="800" letter-spacing="1.6">UNOFFICIAL TOOL</text>
+  <text x="80" y="585" fill="#D7DEE3" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="24" font-weight="600">Snapshot the live form · Fill from explicit config · Review before submit</text>
+</svg>

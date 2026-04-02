@@ -1,0 +1,18 @@
+<svg width="960" height="240" viewBox="0 0 960 240" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">HKUST Student Expense Agent logo</title>
+  <desc id="desc">An abstract local-first automation logo with layered forms, a flow path, and a wordmark.</desc>
+  <rect width="960" height="240" rx="28" fill="#F5ECDD"/>
+  <rect x="24" y="24" width="912" height="192" rx="24" fill="#FFF9F1"/>
+  <circle cx="120" cy="120" r="72" fill="#10212D"/>
+  <rect x="86" y="74" width="66" height="86" rx="12" fill="#FFF9F1"/>
+  <rect x="97" y="90" width="44" height="7" rx="3.5" fill="#D97B2D"/>
+  <rect x="97" y="105" width="44" height="7" rx="3.5" fill="#D97B2D" fill-opacity="0.85"/>
+  <rect x="97" y="120" width="32" height="7" rx="3.5" fill="#D97B2D" fill-opacity="0.7"/>
+  <path d="M103 143L113 153L139 126" stroke="#2E7364" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M170 96C191.333 96 202 106 202 126C202 146 214 154 238 154" stroke="#D97B2D" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="170" cy="96" r="8" fill="#D97B2D"/>
+  <circle cx="238" cy="154" r="8" fill="#D97B2D"/>
+  <text x="286" y="105" fill="#10212D" font-family="Avenir Next, Futura, Trebuchet MS, sans-serif" font-size="40" font-weight="800" letter-spacing="0.4">HKUST Student</text>
+  <text x="286" y="153" fill="#10212D" font-family="Avenir Next, Futura, Trebuchet MS, sans-serif" font-size="40" font-weight="800" letter-spacing="0.4">Expense Agent</text>
+  <text x="288" y="188" fill="#5B6771" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="18" font-weight="600" letter-spacing="1.8">UNOFFICIAL  ·  LOCAL-FIRST  ·  PLAYWRIGHT</text>
+</svg>
