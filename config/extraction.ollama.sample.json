@@ -1,0 +1,32 @@
+{
+  "artifactsDir": "artifacts",
+  "schemaPath": "schemas/claim-draft.schema.json",
+  "textExtraction": {
+    "enablePdfText": true,
+    "enableOcrForImages": false,
+    "pdftotextCommand": "pdftotext",
+    "tesseractCommand": "tesseract",
+    "ocrLanguages": "eng"
+  },
+  "provider": {
+    "type": "command",
+    "command": "node",
+    "args": [
+      "examples/ollama-provider.mjs"
+    ],
+    "env": {
+      "OLLAMA_HOST": "http://127.0.0.1:11434",
+      "OLLAMA_MODEL": "llama3.1:8b"
+    }
+  },
+  "receipts": [
+    {
+      "id": "sample-registration",
+      "path": "examples/receipts/sample-registration.txt",
+      "expenseHints": {
+        "expense_type": "Registration/Conference/Visa Fee",
+        "business_purpose": "Presenting a paper at ASPLOS 2026"
+      }
+    }
+  ]
+}

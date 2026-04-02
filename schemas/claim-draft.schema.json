@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/hkust-student-expense-agent/claim-draft.schema.json",
+  "title": "Claim Draft",
+  "type": "object",
+  "required": [
+    "line_items",
+    "open_questions",
+    "summary"
+  ],
+  "properties": {
+    "line_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "receipt_ids",
+          "expense_type",
+          "date_from",
+          "date_to",
+          "currency",
+          "amount",
+          "business_purpose",
+          "particular",
+          "justification",
+          "attachments",
+          "confidence",
+          "review_notes"
+        ],
+        "properties": {
+          "receipt_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "expense_type": {
+            "type": "string"
+          },
+          "date_from": {
+            "type": "string",
+            "description": "ISO date in YYYY-MM-DD format."
+          },
+          "date_to": {
+            "type": "string",
+            "description": "ISO date in YYYY-MM-DD format."
+          },
+          "currency": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "business_purpose": {
+            "type": "string"
+          },
+          "particular": {
+            "type": "string"
+          },
+          "justification": {
+            "type": "string"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "review_notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "estimated_total_by_currency",
+        "notes"
+      ],
+      "properties": {
+        "estimated_total_by_currency": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "currency",
+              "total"
+            ],
+            "properties": {
+              "currency": {
+                "type": "string"
+              },
+              "total": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

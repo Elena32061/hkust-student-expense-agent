@@ -28,6 +28,7 @@
 - HKUST `Expense Claim for Student Form`
 - 仅支持用户自己手动登录
 - 复用本地浏览器会话
+- 可选的 LLM 报销草稿提取能力，采用“自带模型”接入方式
 - 基于配置的自动填写与附件上传
 - 默认不自动提交
 
@@ -39,11 +40,14 @@ HKUST 报销 eForm 的流程足够固定，适合自动化；但页面里的 DOM
 
 ## 核心特性
 
+- `extract`：把本地收据先整理成结构化报销草稿
 - `snapshot`：抓取真实登录后表单的本地快照
 - `fill`：按配置对真实表单执行自动填写
+- 通过本地命令包装器接入任意模型，不绑定单一厂商
 - 支持 `dataBind` 这类稳定定位方式，不依赖脆弱的动态 id
 - 支持附件上传
 - 浏览器启动前可先做本地配置检查
+- 模型草稿进入浏览器前可先做本地校验
 - 在任何真实提交动作前默认停下人工复核
 
 ## 安全模型
@@ -62,6 +66,7 @@ HKUST 报销 eForm 的流程足够固定，适合自动化；但页面里的 DOM
 ```bash
 npm install
 npx playwright install chromium
+npm run extract:sample
 cp config/claim.sample.json config/claim.local.json
 ```
 
@@ -78,25 +83,81 @@ npm run check
 npm run fill
 ```
 
+## 自带模型接入
+
+V0.2 增加了一个可选的提取阶段，但仓库本身不绑定任何特定模型厂商。
+
+做法是：
+
+- `extract` 先把本地收据整理成请求 JSON
+- 通过本地命令包装器把这个 JSON 交给你自己的模型
+- 包装器只需要读取 `CLAIM_REQUEST_PATH`，然后输出符合 `schemas/claim-draft.schema.json` 的 JSON
+
+因此它可以接：
+
+- OpenAI-compatible API
+- Ollama
+- LM Studio
+- vLLM
+- 你们实验室自己的模型网关
+
+先跑内置联调样例：
+
+```bash
+npm run extract:sample
+npm run check:draft
+```
+
+再切到你自己的模型配置，例如：
+
+```bash
+cp config/extraction.openai-compatible.sample.json config/extraction.local.json
+export OPENAI_API_KEY=your-key
+npm run extract
+npm run check:draft
+```
+
+详细说明见：
+
+- `docs/V0_2_LLM_ARCHITECTURE.md`
+- `docs/MODEL_INTEGRATION.md`
+
 ## 工作流说明
 
-1. `snapshot`
+1. `extract`
+   读取本地收据，提取原始文本，生成提取请求文件，并可选调用你自己的模型包装器产出结构化草稿。
+
+2. `snapshot`
    打开目标表单，必要时等用户自己完成登录，然后把 frames、controls 和字段附近文本保存成本地快照。
 
-2. `check`
+3. `check`
    在真正打开浏览器前，先检查本地配置结构和附件路径。
 
-3. `fill`
+4. `fill`
    复用本地登录态重新打开表单，按配置填写字段、上传附件，并在最后停下来等待人工检查。
 
 ## 仓库结构
 
 - `scripts/eform-agent.mjs`
   快照与填表主脚本。
+- `scripts/extract-receipts.mjs`
+  生成 LLM 提取请求并调用 provider 命令。
 - `scripts/check-config.mjs`
   本地配置检查脚本。
+- `scripts/check-draft.mjs`
+  校验模型返回的结构化草稿。
 - `config/claim.sample.json`
   使用假数据的安全示例配置。
+- `config/extraction.sample.json`
+  使用 mock provider 的可运行提取示例。
+- `config/extraction.openai-compatible.sample.json`
+  OpenAI 风格接口的示例配置。
+- `config/extraction.ollama.sample.json`
+  本地 Ollama 的示例配置。
+- `docs/V0_2_LLM_ARCHITECTURE.md`
+  LLM 版工作流的技术边界说明。
+- `docs/MODEL_INTEGRATION.md`
+  如何嵌入你自己的模型而不改核心仓库。
 - `docs/PUBLISHING.md`
   公开发布前的检查清单。
 - `docs/CLI_ANYTHING.md`
@@ -126,6 +187,7 @@ npm run fill
 ## 后续方向
 
 - 更稳的字段发现和映射工具
+- 常见报销模式的 draft-to-fill 转换
 - 常见报销模式的模板化配置
 - 更好的快照脱敏工具
 - 和更大 agent 生态的集成包装

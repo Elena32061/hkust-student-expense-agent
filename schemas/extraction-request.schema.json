@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/hkust-student-expense-agent/extraction-request.schema.json",
+  "title": "Extraction Request",
+  "type": "object",
+  "required": [
+    "version",
+    "created_at",
+    "task",
+    "instructions",
+    "output_schema",
+    "receipts"
+  ],
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "task": {
+      "type": "string"
+    },
+    "instructions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "output_schema": {
+      "type": "object"
+    },
+    "receipts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "path",
+          "mime_type",
+          "extracted_text"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "mime_type": {
+            "type": "string"
+          },
+          "extractor": {
+            "type": "string"
+          },
+          "expenseHints": {
+            "type": "object"
+          },
+          "extracted_text": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

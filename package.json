@@ -1,6 +1,6 @@
 {
   "name": "hkust-student-expense-agent",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": false,
   "type": "module",
   "description": "Unofficial local-first browser automation helper for HKUST student expense claim eForms.",
@@ -8,10 +8,15 @@
   "scripts": {
     "snapshot": "node scripts/eform-agent.mjs snapshot",
     "fill": "node scripts/eform-agent.mjs fill --config config/claim.local.json",
-    "check": "node scripts/check-config.mjs config/claim.local.json"
+    "check": "node scripts/check-config.mjs config/claim.local.json",
+    "check:draft": "node scripts/check-draft.mjs",
+    "extract": "node scripts/extract-receipts.mjs --config config/extraction.local.json",
+    "extract:sample": "node scripts/extract-receipts.mjs --config config/extraction.sample.json"
   },
   "keywords": [
     "hkust",
+    "llm",
+    "ocr",
     "playwright",
     "reimbursement",
     "expense-claim",

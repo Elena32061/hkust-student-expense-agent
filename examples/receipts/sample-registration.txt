@@ -1,0 +1,11 @@
+Conference Registration Receipt
+Receipt ID: DEMO-ASPLOS-2026-001
+Issue Date: 2026-01-10
+Attendee: Demo Student
+Conference: ASPLOS 2026
+Item: Student registration fee
+Currency: USD
+Amount Paid: 350.00
+Payment Method: Visa
+Business Purpose: Presenting a research paper at ASPLOS 2026
+Note: This file contains synthetic example data for local repository testing only.

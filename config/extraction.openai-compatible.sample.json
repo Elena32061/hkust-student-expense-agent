@@ -1,0 +1,32 @@
+{
+  "artifactsDir": "artifacts",
+  "schemaPath": "schemas/claim-draft.schema.json",
+  "textExtraction": {
+    "enablePdfText": true,
+    "enableOcrForImages": false,
+    "pdftotextCommand": "pdftotext",
+    "tesseractCommand": "tesseract",
+    "ocrLanguages": "eng"
+  },
+  "provider": {
+    "type": "command",
+    "command": "node",
+    "args": [
+      "examples/openai-compatible-provider.mjs"
+    ],
+    "env": {
+      "OPENAI_BASE_URL": "https://api.openai.com/v1",
+      "OPENAI_MODEL": "gpt-4.1-mini"
+    }
+  },
+  "receipts": [
+    {
+      "id": "sample-registration",
+      "path": "examples/receipts/sample-registration.txt",
+      "expenseHints": {
+        "expense_type": "Registration/Conference/Visa Fee",
+        "business_purpose": "Presenting a paper at ASPLOS 2026"
+      }
+    }
+  ]
+}

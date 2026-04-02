@@ -1,0 +1,28 @@
+{
+  "artifactsDir": "artifacts",
+  "schemaPath": "schemas/claim-draft.schema.json",
+  "textExtraction": {
+    "enablePdfText": true,
+    "enableOcrForImages": false,
+    "pdftotextCommand": "pdftotext",
+    "tesseractCommand": "tesseract",
+    "ocrLanguages": "eng"
+  },
+  "provider": {
+    "type": "command",
+    "command": "node",
+    "args": [
+      "examples/mock-command-provider.mjs"
+    ]
+  },
+  "receipts": [
+    {
+      "id": "sample-registration",
+      "path": "examples/receipts/sample-registration.txt",
+      "expenseHints": {
+        "expense_type": "Registration/Conference/Visa Fee",
+        "business_purpose": "Presenting a paper at ASPLOS 2026"
+      }
+    }
+  ]
+}
