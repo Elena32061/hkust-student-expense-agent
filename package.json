@@ -1,0 +1,23 @@
+{
+  "name": "hkust-student-expense-agent",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "Unofficial local-first browser automation helper for HKUST student expense claim eForms.",
+  "license": "MIT",
+  "scripts": {
+    "snapshot": "node scripts/eform-agent.mjs snapshot",
+    "fill": "node scripts/eform-agent.mjs fill --config config/claim.local.json",
+    "check": "node scripts/check-config.mjs config/claim.local.json"
+  },
+  "keywords": [
+    "hkust",
+    "playwright",
+    "reimbursement",
+    "expense-claim",
+    "browser-automation"
+  ],
+  "dependencies": {
+    "playwright": "^1.41.2"
+  }
+}

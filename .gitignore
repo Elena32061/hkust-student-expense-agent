@@ -1,0 +1,4 @@
+node_modules/
+.auth/
+artifacts/
+config/*.local.json

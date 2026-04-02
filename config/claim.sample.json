@@ -1,0 +1,134 @@
+{
+  "formUrl": "https://admms66.ust.hk/YZSoft/forms/Post.aspx?pn=Expense+Claim+for+Student+Form",
+  "submit": false,
+  "steps": [
+    {
+      "action": "select",
+      "frame": {
+        "urlIncludes": "Expense%20Claim%20for%20Student%20Form.aspx"
+      },
+      "locator": {
+        "kind": "dataBind",
+        "value": "UST_FO_ExpenseStudentForm_LNEDetail.ExpenseType",
+        "tag": "select",
+        "nth": 0
+      },
+      "value": "Registration/Conference/Visa Fee",
+      "waitMs": 500
+    },
+    {
+      "action": "fill",
+      "frame": {
+        "urlIncludes": "Expense%20Claim%20for%20Student%20Form.aspx"
+      },
+      "locator": {
+        "kind": "dataBind",
+        "value": "UST_FO_ExpenseStudentForm_LNEDetail.PeriodFrom",
+        "tag": "input[type='text']",
+        "nth": 0
+      },
+      "value": "01/01/2026",
+      "waitMs": 200
+    },
+    {
+      "action": "fill",
+      "frame": {
+        "urlIncludes": "Expense%20Claim%20for%20Student%20Form.aspx"
+      },
+      "locator": {
+        "kind": "dataBind",
+        "value": "UST_FO_ExpenseStudentForm_LNEDetail.PeriodTo",
+        "tag": "input[type='text']",
+        "nth": 0
+      },
+      "value": "01/01/2026",
+      "waitMs": 200
+    },
+    {
+      "action": "fill",
+      "frame": {
+        "urlIncludes": "Expense%20Claim%20for%20Student%20Form.aspx"
+      },
+      "locator": {
+        "kind": "dataBind",
+        "value": "UST_FO_ExpenseStudentForm_LNEDetail.BusinessPurpose",
+        "tag": "textarea",
+        "nth": 0
+      },
+      "value": "Conference attendance",
+      "waitMs": 200
+    },
+    {
+      "action": "select",
+      "frame": {
+        "urlIncludes": "Expense%20Claim%20for%20Student%20Form.aspx"
+      },
+      "locator": {
+        "kind": "dataBind",
+        "value": "UST_FO_ExpenseStudentForm_LNEDetail.Currency",
+        "tag": "select",
+        "nth": 0
+      },
+      "value": "USD",
+      "waitMs": 200
+    },
+    {
+      "action": "fill",
+      "frame": {
+        "urlIncludes": "Expense%20Claim%20for%20Student%20Form.aspx"
+      },
+      "locator": {
+        "kind": "dataBind",
+        "value": "UST_FO_ExpenseStudentForm_LNEDetail.UnitPrice",
+        "tag": "input[type='text']",
+        "nth": 0
+      },
+      "value": "123.45",
+      "waitMs": 800
+    },
+    {
+      "action": "fill",
+      "frame": {
+        "urlIncludes": "Expense%20Claim%20for%20Student%20Form.aspx"
+      },
+      "locator": {
+        "kind": "dataBind",
+        "value": "UST_FO_ExpenseStudentForm_LNEDetail.Particular",
+        "tag": "textarea",
+        "nth": 0
+      },
+      "value": "Example conference registration",
+      "waitMs": 200
+    },
+    {
+      "action": "fill",
+      "frame": {
+        "urlIncludes": "Expense%20Claim%20for%20Student%20Form.aspx"
+      },
+      "locator": {
+        "kind": "dataBind",
+        "value": "UST_FO_ExpenseStudentForm_LNEDetail.Justification",
+        "tag": "textarea",
+        "nth": 0
+      },
+      "value": "Synthetic sample data for local testing only.",
+      "waitMs": 200
+    },
+    {
+      "action": "upload",
+      "frame": {
+        "urlIncludes": "Expense%20Claim%20for%20Student%20Form.aspx"
+      },
+      "locator": {
+        "kind": "dataBind",
+        "value": "UST_FO_ExpenseStudentForm_LNEDetail.AttachFileID",
+        "tag": "input[type='file']",
+        "nth": 0
+      },
+      "files": [
+        "/absolute/path/to/local-only-receipt.pdf"
+      ],
+      "waitMs": 1200
+    }
+  ]
+}
