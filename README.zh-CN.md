@@ -62,7 +62,7 @@ HKUST 报销 eForm 的流程足够固定，适合自动化；但页面里的 DOM
 - 它不会要求你把密码写进代码、配置或聊天记录。
 - 它不会绕过 SSO、MFA、验证码或访问控制。
 - 不应该把它做成替别人登录的托管服务。
-- 除非你自己额外改代码，否则它不会默认自动提交。
+- 可选提交需要单独配置提交步骤，并在终端输入 `SUBMIT` 确认。
 
 ## 快速开始
 
@@ -85,6 +85,20 @@ npm run check
 npm run fill
 ```
 
+检查或填写前，请把示例中的附件占位路径替换为真实本地文件。`fill` 现在会在
+打开浏览器前执行与 `check` 相同的校验：不支持的动作、错误的定位器或等待时间、
+不存在的附件以及占位路径都会直接报错，避免填到一半才发现配置有问题。
+
+检查其他配置可运行 `npm run check -- config/my-claim.local.json`。
+相对配置路径以仓库根目录为基准；相对附件路径以运行命令时的目录为基准。
+使用附件绝对路径可以避免工作目录变化带来的问题。
+所有定位器类型都支持从 0 开始的 `locator.nth`，可明确指定重复报销行。
+
+如需启用可选提交，请单独配置 `action: "click"` 的 `submitStep`，并设置
+`submit: true` 或传入 `--submit`；执行时仍须在终端输入 `SUBMIT`。
+普通 `steps` 会按配置执行，包括其中的点击操作，因此最终提交按钮应只放在
+`submitStep` 中。
+
 ## 工作流说明
 
 1. `snapshot`
@@ -101,7 +115,9 @@ npm run fill
 - `scripts/eform-agent.mjs`
   快照与填表主脚本。
 - `scripts/check-config.mjs`
-  本地配置检查脚本。
+  本地配置检查入口，与填表脚本共用 `scripts/lib/config.mjs` 校验模块。
+- `scripts/lib/automation.mjs`
+  可复用的浏览器动作与字段定位逻辑。
 - `config/claim.sample.json`
   使用假数据的安全示例配置。
 - `docs/PUBLISHING.md`
@@ -136,6 +152,21 @@ npm run fill
 - 常见报销模式的模板化配置
 - 更好的快照脱敏工具
 - 和更大 agent 生态的集成包装
+
+## 开发与测试
+
+建议使用 Node.js 22，并通过已提交的锁文件安装依赖：
+
+```bash
+npm ci
+npx playwright install chromium
+npm test
+```
+
+`npm run test:config` 仅测试配置校验，无需启动浏览器。
+`npm run test:browser` 使用本地模拟表单验证字段定位和填写动作。
+GitHub Actions 会在 Linux 上运行这两组测试。测试不使用学校账号、真实票据或
+在线 eForm；SSO 登录和 YZSoft 控件联动仍需要在真实环境中人工验证。
 
 ## 免责声明
 

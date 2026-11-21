@@ -62,7 +62,7 @@ This repository is intentionally conservative.
 - It does not ask for or store your password in code or chat.
 - It does not bypass SSO, MFA, captcha, or access control.
 - It should not be run as a hosted service for other people's accounts.
-- It does not auto-submit unless you explicitly wire that in yourself.
+- Optional submission requires a separate submit step and typing `SUBMIT` to confirm.
 
 ## Quick Start
 
@@ -85,6 +85,22 @@ npm run check
 npm run fill
 ```
 
+Replace the sample attachment path with a real local file before checking or
+filling. `fill` now runs the same validation as `check` before opening the
+browser. Invalid actions, locators, wait durations, and missing or placeholder
+attachments stop the run before any fields are changed.
+
+To check a different config, run `npm run check -- config/my-claim.local.json`.
+Relative config paths are resolved from the repository root. Relative attachment
+paths are resolved from the directory where you run the command; absolute paths
+work from any directory. `locator.nth` is zero-based and works with every locator
+kind, allowing you to target repeated expense rows explicitly.
+
+For optional submission, define a separate `submitStep` with `action: "click"`
+and enable `submit: true` or pass `--submit`. You must still type `SUBMIT` in the
+terminal. Ordinary `steps` execute as configured, including any clicks, so keep
+the final submit button exclusively in `submitStep`.
+
 ## How It Works
 
 1. `snapshot`
@@ -101,7 +117,9 @@ npm run fill
 - `scripts/eform-agent.mjs`
   The main snapshot and fill runner.
 - `scripts/check-config.mjs`
-  A small local config validator.
+  The CLI for the shared config validator in `scripts/lib/config.mjs`.
+- `scripts/lib/automation.mjs`
+  Reusable browser actions and field locator handling.
 - `config/claim.sample.json`
   A safe sample config with fake values.
 - `docs/PUBLISHING.md`
@@ -136,6 +154,22 @@ npm run fill
 - reusable templates for common claim patterns
 - safer redaction tooling for sharing snapshots
 - optional packaging into broader agent ecosystems
+
+## Development and Tests
+
+Use Node.js 22 and the committed lockfile for reproducible development:
+
+```bash
+npm ci
+npx playwright install chromium
+npm test
+```
+
+`npm run test:config` checks validation without launching a browser.
+`npm run test:browser` exercises field selection and actions against synthetic
+local HTML. GitHub Actions runs both suites on Linux. These tests do not use an
+HKUST account, real receipts, or the live eForm; manual testing is still needed
+for SSO and YZSoft-specific interactions.
 
 ## Disclaimer
 
