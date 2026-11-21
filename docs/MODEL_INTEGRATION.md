@@ -14,6 +14,12 @@ Your wrapper must:
 2. call any model or API you want
 3. print valid JSON to stdout
 
+Use explicit `null` for unknown extracted fields, and explain what needs review
+in `review_notes` or `open_questions`. Missing required keys, impossible dates,
+incorrect currency totals, and attachments unrelated to the cited receipt IDs
+are rejected before a draft becomes the latest result. The runner adds
+`source_request_id`; wrappers should not invent this metadata.
+
 The stdout JSON must match [`schemas/claim-draft.schema.json`](../schemas/claim-draft.schema.json).
 
 ## Why This Contract
@@ -126,7 +132,9 @@ After a draft is produced:
 1. inspect `artifacts/claim-draft.latest.json`
 2. run `npm run check:draft`
 3. review the draft manually
-4. map approved values into `config/claim.local.json`
-5. run `npm run fill`
+4. resolve unknown fields, then run `npm run check:draft -- --request artifacts/extract-request.latest.json --ready`
+5. run `npm run draft:prepare -- --reviewed` to create `config/claim.local.json`
+6. run `npm run check`, add enough expense rows in the browser, and run `npm run fill`
 
-This preserves a clean separation between model interpretation and form execution.
+The converter verifies request identity and receipt-to-attachment correspondence.
+See [LLM_WORKFLOW.md](LLM_WORKFLOW.md) for overwrite behavior and extraction limits.

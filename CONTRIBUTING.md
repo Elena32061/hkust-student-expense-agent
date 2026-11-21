@@ -19,6 +19,11 @@ Do not contribute:
 
 Before opening a PR:
 
-1. Run `npm run check` with a local config.
-2. Smoke-test `npm run snapshot`.
-3. Verify no sensitive files are staged.
+1. Use Node.js 22 and run `npm ci`, then `npm test`.
+2. Run `npm run extract:sample` and `npm run check:draft -- --request artifacts/extract-request.latest.json`.
+3. Run `npm run check` with a local config. Smoke-test `npm run snapshot` when you have access to the live form.
+4. Verify no sensitive files are staged.
+
+Tests use synthetic receipts and stub command providers. They require no API
+keys, paid model calls, OCR installation, or HKUST account. Live model accuracy,
+SSO, and YZSoft behavior require separate manual verification.

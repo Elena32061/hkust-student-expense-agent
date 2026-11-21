@@ -13,6 +13,7 @@ If you later package it for a broader agent framework such as CLI-Anything, keep
 - `snapshot`: inspect the logged-in form and save a local artifact
 - `check`: validate a local claim config before browser automation
 - `check:draft`: validate model output before it is mapped into browser steps
+- `draft:prepare -- --reviewed`: map a reviewed draft and its matching request to a local fill config
 - `fill`: apply local config to the live form and stop before submission
 
 Keep the same safety model:

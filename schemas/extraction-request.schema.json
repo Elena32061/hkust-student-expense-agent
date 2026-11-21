@@ -4,6 +4,7 @@
   "title": "Extraction Request",
   "type": "object",
   "required": [
+    "request_id",
     "version",
     "created_at",
     "task",
@@ -12,6 +13,11 @@
     "receipts"
   ],
   "properties": {
+    "request_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique extraction run identity, copied by the runner to draft.source_request_id."
+    },
     "version": {
       "type": "string"
     },

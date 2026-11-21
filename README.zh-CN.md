@@ -124,6 +124,26 @@ npm run extract
 npm run check:draft
 ```
 
+识别后，核对 `artifacts/claim-draft.latest.json` 中的金额、币种、日期和复核提示，
+补全值为 `null` 的字段，再生成填表配置：
+
+```bash
+npm run check:draft -- --request artifacts/extract-request.latest.json --ready
+npm run draft:prepare -- --reviewed
+npm run check
+npm run fill
+```
+
+`--reviewed` 表示你已核对草稿及其疑问，不会跳过缺失字段和票据来源校验。
+生成器只允许上传原请求中对应票据的文件，并始终设置 `submit: false`。
+如果 `config/claim.local.json` 已存在，默认保留；确认要替换时再传 `--force`。
+多笔费用会生成对应行的字段配置，请先在浏览器中手动添加足够的报销行；
+所有目标字段存在后才开始填写。内置 mock 仅用于联调，不能作为真实报销数据。
+
+扫描版 PDF 可启用 `textExtraction.enableOcrForPdfs`，图片可启用
+`textExtraction.enableOcrForImages`。安装方法、超时设置及完整流程见
+[LLM 工作流说明](docs/LLM_WORKFLOW.md)。
+
 详细说明见：
 
 - `docs/V0_2_LLM_ARCHITECTURE.md`
@@ -153,6 +173,8 @@ npm run check:draft
   本地配置检查脚本。
 - `scripts/check-draft.mjs`
   校验模型返回的结构化草稿。
+- `scripts/draft-to-config.mjs`
+  将人工复核后的草稿转换为确定性的填表配置。
 - `config/claim.sample.json`
   使用假数据的安全示例配置。
 - `config/extraction.sample.json`
@@ -194,7 +216,7 @@ npm run check:draft
 ## 后续方向
 
 - 更稳的字段发现和映射工具
-- 常见报销模式的 draft-to-fill 转换
+- 更多费用类型和动态新增行的表单适配
 - 常见报销模式的模板化配置
 - 更好的快照脱敏工具
 - 和更大 agent 生态的集成包装
