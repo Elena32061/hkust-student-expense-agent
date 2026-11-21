@@ -6,227 +6,109 @@ import process from "node:process";
 import readline from "node:readline/promises";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
+import { loadConfig, DEFAULT_FORM_URL } from "./lib/config.mjs";
+import { runStep, runSteps } from "./lib/automation.mjs";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const projectRoot = path.resolve(__dirname, "..");
-
-const DEFAULT_FORM_URL =
-  "https://admms66.ust.hk/YZSoft/forms/Post.aspx?pn=Expense+Claim+for+Student+Form";
-
-const args = parseArgs(process.argv.slice(2));
-const mode = args._[0];
-
-if (!mode || !["snapshot", "fill"].includes(mode)) {
-  printUsage();
-  process.exit(1);
-}
-
-const configPath = path.resolve(
-  projectRoot,
-  args.config || "config/claim.local.json",
-);
-
-const profileDir = path.resolve(projectRoot, ".auth/hkust-eform");
-const artifactsDir = path.resolve(projectRoot, "artifacts");
-
-await fs.mkdir(profileDir, { recursive: true });
-await fs.mkdir(artifactsDir, { recursive: true });
-
-const config = mode === "fill" ? await loadConfig(configPath) : null;
-const formUrl = args.url || config?.formUrl || DEFAULT_FORM_URL;
-
-let context;
+const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 try {
-  context = await chromium.launchPersistentContext(profileDir, {
-    headless: args.headless === "true",
-    viewport: null,
-  });
+  await main();
 } catch (error) {
-  const message = String(error);
-  if (message.includes("Executable doesn't exist")) {
-    console.error("Playwright browser is not installed.");
-    console.error("Run: npx playwright install chromium");
-  }
-  throw error;
+  console.error(error.message);
+  process.exitCode = 1;
 }
 
-const page = context.pages()[0] || (await context.newPage());
-await page.goto(formUrl, { waitUntil: "domcontentloaded" });
-await page.bringToFront();
-
-if (mode === "snapshot") {
-  console.log("Browser opened.");
-  console.log("1. Log in to HKUST in the browser window.");
-  console.log("2. Navigate until the target eForm is fully visible.");
-  await waitForEnter(
-    "Press Enter here after the form is visible and ready to inspect.",
-  );
-
-  await settle(page);
-  const output = await captureSnapshot(page);
-  const stamp = timestamp();
-  const jsonPath = path.join(artifactsDir, `form-snapshot-${stamp}.json`);
-  const pngPath = path.join(artifactsDir, `form-snapshot-${stamp}.png`);
-
-  await fs.writeFile(jsonPath, JSON.stringify(output, null, 2), "utf8");
-  await page.screenshot({ path: pngPath, fullPage: true });
-
-  console.log(`Snapshot written to ${jsonPath}`);
-  console.log(`Screenshot written to ${pngPath}`);
-  await context.close();
-  process.exit(0);
-}
-
-console.log("Browser opened.");
-console.log("If login is required, complete it in the browser first.");
-await waitForEnter(
-  "Press Enter here after you are on the target form and ready to run fill mode.",
-);
-await settle(page);
-
-for (const [index, step] of config.steps.entries()) {
-  console.log(`Running step ${index + 1}/${config.steps.length}: ${step.action}`);
-  await runStep(page, step);
-}
-
-console.log("Fill steps completed.");
-
-if (config.submit || args.submit === "true") {
-  const answer = await ask(
-    "Type SUBMIT to continue with the configured submit click, or press Enter to skip: ",
-  );
-  if (answer === "SUBMIT") {
-    const submitStep = config.submitStep;
-    if (!submitStep) {
-      throw new Error(
-        "Config requested submission, but submitStep is missing from config.",
-      );
-    }
-    await runStep(page, submitStep);
-    console.log("Submit step executed.");
-  } else {
-    console.log("Submission skipped.");
-  }
-}
-
-await waitForEnter("Inspect the form in the browser, then press Enter to close.");
-await context.close();
-
-async function loadConfig(targetPath) {
-  try {
-    const raw = await fs.readFile(targetPath, "utf8");
-    return JSON.parse(raw);
-  } catch (error) {
-    throw new Error(
-      `Unable to read config at ${targetPath}. Copy config/claim.sample.json to config/claim.local.json first.`,
-    );
-  }
-}
-
-async function runStep(pageRef, step) {
-  if (step.action === "wait") {
-    await pageRef.waitForTimeout(Number(step.waitMs || step.value || 500));
+async function main() {
+  const args = parseArgs(process.argv.slice(2));
+  if (args.help === "true") {
+    printUsage();
     return;
   }
-
-  const target = await resolveLocator(pageRef, step);
-
-  switch (step.action) {
-    case "fill":
-      await setFieldValue(target, String(step.value ?? ""));
-      await maybeWait(pageRef, step);
-      return;
-    case "select":
-      await setSelectValue(target, String(step.value ?? ""));
-      await maybeWait(pageRef, step);
-      return;
-    case "click":
-      await target.click();
-      await maybeWait(pageRef, step);
-      return;
-    case "check":
-      await target.check();
-      await maybeWait(pageRef, step);
-      return;
-    case "upload":
-      if (!Array.isArray(step.files) || step.files.length === 0) {
-        throw new Error("Upload step requires a non-empty files array.");
-      }
-      await target.setInputFiles(step.files);
-      await maybeWait(pageRef, step);
-      return;
-    case "waitFor":
-      await target.waitFor({ state: step.state || "visible" });
-      await maybeWait(pageRef, step);
-      return;
-    default:
-      throw new Error(`Unsupported action: ${step.action}`);
+  const mode = args._[0];
+  if (args._.length !== 1 || !["snapshot", "fill"].includes(mode)) {
+    printUsage();
+    throw new Error("Choose one mode: snapshot or fill.");
   }
-}
-
-async function resolveLocator(pageRef, step) {
-  const frame = selectFrame(pageRef, step.frame);
-  const locator = step.locator;
-  if (!locator?.kind || !locator.value) {
-    throw new Error(`Step is missing locator.kind or locator.value.`);
+  const configPath = path.resolve(projectRoot, args.config || "config/claim.local.json");
+  // Preflight must finish before creating browser state or opening the form.
+  const config = mode === "fill"
+    ? await loadConfig(configPath, { requireSubmitStep: args.submit === "true" })
+    : null;
+  const formUrl = args.url || config?.formUrl || DEFAULT_FORM_URL;
+  let url;
+  try {
+    url = new URL(formUrl);
+  } catch {
+    throw new Error("Form URL must be a valid HTTP or HTTPS URL.");
   }
+  if (!["http:", "https:"].includes(url.protocol)) {
+    throw new Error("Form URL must use HTTP or HTTPS.");
+  }
+  const profileDir = path.resolve(projectRoot, ".auth/hkust-eform");
+  const artifactsDir = path.resolve(projectRoot, "artifacts");
+  await fs.mkdir(profileDir, { recursive: true });
+  await fs.mkdir(artifactsDir, { recursive: true });
 
-  switch (locator.kind) {
-    case "selector":
-      return frame.locator(locator.value).first();
-    case "label":
-      return frame.getByLabel(locator.value, { exact: false }).first();
-    case "placeholder":
-      return frame.getByPlaceholder(locator.value, { exact: false }).first();
-    case "text":
-      return frame.getByText(locator.value, { exact: false }).first();
-    case "dataBind":
-      return resolveDataBindLocator(frame, locator);
-    case "role":
-      if (!locator.role) {
-        throw new Error("Role locator requires locator.role.");
-      }
-      return frame.getByRole(locator.role, {
-        name: locator.value,
-        exact: false,
+  let context;
+  try {
+    try {
+      context = await chromium.launchPersistentContext(profileDir, {
+        headless: args.headless === "true",
+        viewport: null,
       });
-    default:
-      throw new Error(`Unsupported locator kind: ${locator.kind}`);
-  }
-}
-
-function resolveDataBindLocator(frame, locator) {
-  const target = locator.value;
-  const elementTag = locator.tag || "input, textarea, select";
-  const fieldSelector = locator.fieldSelector || ".yz-xform-field-cnt";
-  const elementSelector = `${fieldSelector}[xdatabind="${escapeCssForSelector(
-    target,
-  )}"] ${elementTag}`;
-  const nth = Number(locator.nth || 0);
-  return frame.locator(elementSelector).nth(nth);
-}
-
-function selectFrame(pageRef, frameHint = {}) {
-  if (!frameHint || Object.keys(frameHint).length === 0) {
-    return pageRef;
-  }
-
-  for (const frame of pageRef.frames()) {
-    if (frameHint.name && frame.name() !== frameHint.name) {
-      continue;
+    } catch (error) {
+      if (String(error).includes("Executable doesn't exist")) {
+        throw new Error("Playwright browser is not installed. Run: npx playwright install chromium");
+      }
+      throw error;
     }
-    if (
-      frameHint.urlIncludes &&
-      !String(frame.url()).includes(frameHint.urlIncludes)
-    ) {
-      continue;
-    }
-    return frame;
-  }
+    const page = context.pages()[0] || (await context.newPage());
+    await page.goto(formUrl, { waitUntil: "domcontentloaded" });
+    await page.bringToFront();
 
-  throw new Error(`Unable to find frame for hint ${JSON.stringify(frameHint)}`);
+    if (mode === "snapshot") {
+      console.log("Browser opened.");
+      console.log("1. Log in to HKUST in the browser window.");
+      console.log("2. Navigate until the target eForm is fully visible.");
+      await waitForEnter("Press Enter here after the form is visible and ready to inspect.");
+      await settle(page);
+      const output = await captureSnapshot(page);
+      const stamp = timestamp();
+      const jsonPath = path.join(artifactsDir, `form-snapshot-${stamp}.json`);
+      const pngPath = path.join(artifactsDir, `form-snapshot-${stamp}.png`);
+      await fs.writeFile(jsonPath, JSON.stringify(output, null, 2), "utf8");
+      await page.screenshot({ path: pngPath, fullPage: true });
+      console.log(`Snapshot written to ${jsonPath}`);
+      console.log(`Screenshot written to ${pngPath}`);
+      return;
+    }
+
+    console.log("Browser opened.");
+    console.log("If login is required, complete it in the browser first.");
+    await waitForEnter("Press Enter here after you are on the target form and ready to run fill mode.");
+    await settle(page);
+    await runSteps(page, config.steps, (index, step) => {
+      console.log(`Running step ${index + 1}/${config.steps.length}: ${step.action}`);
+    });
+    console.log("Fill steps completed.");
+
+    if (config.submit || args.submit === "true") {
+      const answer = await ask("Type SUBMIT to continue with the configured submit click, or press Enter to skip: ");
+      if (answer === "SUBMIT") {
+        try {
+          await runStep(page, config.submitStep);
+        } catch (error) {
+          throw new Error(`Submit step failed: ${error.message}`, { cause: error });
+        }
+        console.log("Submit step executed.");
+      } else {
+        console.log("Submission skipped.");
+      }
+    }
+    await waitForEnter("Inspect the form in the browser, then press Enter to close.");
+  } finally {
+    await context?.close();
+  }
 }
 
 async function captureSnapshot(pageRef) {
@@ -548,69 +430,6 @@ async function settle(pageRef) {
   await pageRef.waitForTimeout(1500);
 }
 
-async function triggerFieldEvents(target) {
-  await target.evaluate((element) => {
-    element.dispatchEvent(new Event("input", { bubbles: true }));
-    element.dispatchEvent(new Event("change", { bubbles: true }));
-    element.dispatchEvent(new Event("blur", { bubbles: true }));
-  });
-}
-
-async function setFieldValue(target, value) {
-  try {
-    await target.fill(value);
-    await triggerFieldEvents(target);
-    return;
-  } catch (error) {
-    const message = String(error);
-    if (!message.includes("not editable")) {
-      throw error;
-    }
-  }
-
-  await target.evaluate((element, nextValue) => {
-    if (element.hasAttribute("readonly")) {
-      element.removeAttribute("readonly");
-    }
-    if (element.hasAttribute("disabled")) {
-      element.removeAttribute("disabled");
-    }
-    element.focus();
-    element.value = nextValue;
-    element.dispatchEvent(new Event("input", { bubbles: true }));
-    element.dispatchEvent(new Event("change", { bubbles: true }));
-    element.dispatchEvent(new Event("blur", { bubbles: true }));
-  }, value);
-}
-
-async function setSelectValue(target, value) {
-  try {
-    await target.selectOption(value);
-    return;
-  } catch (error) {
-    const message = String(error);
-    if (!message.includes("not enabled")) {
-      throw error;
-    }
-  }
-
-  await target.evaluate((element, nextValue) => {
-    if (element.hasAttribute("disabled")) {
-      element.removeAttribute("disabled");
-    }
-    element.value = nextValue;
-    element.dispatchEvent(new Event("input", { bubbles: true }));
-    element.dispatchEvent(new Event("change", { bubbles: true }));
-    element.dispatchEvent(new Event("blur", { bubbles: true }));
-  }, value);
-}
-
-async function maybeWait(pageRef, step) {
-  if (step.waitMs) {
-    await pageRef.waitForTimeout(Number(step.waitMs));
-  }
-}
-
 async function waitForEnter(promptText) {
   await ask(`${promptText}\n`);
 }
@@ -647,22 +466,36 @@ function pad(value) {
 
 function parseArgs(argv) {
   const result = { _: [] };
+  const flags = new Set(["help", "headless", "submit"]);
+  const options = new Set(["config", "url"]);
   for (let index = 0; index < argv.length; index += 1) {
     const token = argv[index];
-    if (!token.startsWith("--")) {
+    if (token === "-h") {
+      result.help = "true";
+      continue;
+    }
+    if (!token.startsWith("-")) {
       result._.push(token);
       continue;
     }
-
     const key = token.slice(2);
     const next = argv[index + 1];
-    if (!next || next.startsWith("--")) {
-      result[key] = "true";
-      continue;
+    if (flags.has(key)) {
+      if (next === "true" || next === "false") {
+        result[key] = next;
+        index += 1;
+      } else {
+        result[key] = "true";
+      }
+    } else if (options.has(key)) {
+      if (!next || next.startsWith("-")) {
+        throw new Error(`--${key} requires a value.`);
+      }
+      result[key] = next;
+      index += 1;
+    } else {
+      throw new Error(`Unknown option: ${token}. Run with --help for usage.`);
     }
-
-    result[key] = next;
-    index += 1;
   }
   return result;
 }
@@ -673,14 +506,7 @@ function printUsage() {
   console.log("  npm run fill");
   console.log("");
   console.log("Direct:");
-  console.log(
-    "  node scripts/eform-agent.mjs snapshot [--url <form-url>] [--headless]",
-  );
-  console.log(
-    "  node scripts/eform-agent.mjs fill --config config/claim.local.json [--submit]",
-  );
-}
-
-function escapeCssForSelector(value) {
-  return String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  console.log("  node scripts/eform-agent.mjs snapshot [--url <form-url>] [--headless]");
+  console.log("  node scripts/eform-agent.mjs fill --config config/claim.local.json [--submit]");
+  console.log("  node scripts/eform-agent.mjs --help");
 }

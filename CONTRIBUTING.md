@@ -19,6 +19,8 @@ Do not contribute:
 
 Before opening a PR:
 
-1. Run `npm run check` with a local config.
-2. Smoke-test `npm run snapshot`.
-3. Verify no sensitive files are staged.
+1. Run `npm ci`, `npx playwright install chromium`, and `npm test` on Node.js 22.
+2. Run `npm run check` with a local config and real local attachment paths.
+3. Smoke-test `npm run snapshot` when you have access to the live form. Offline
+   tests do not verify HKUST login or YZSoft integration.
+4. Verify no sensitive files are staged.
