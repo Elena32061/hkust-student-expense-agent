@@ -41,7 +41,7 @@ In short: use the model for extraction, not for browser control.
    The repository validates the returned shape, writes `artifacts/claim-draft-*.json`, and keeps `artifacts/claim-draft.latest.json` for follow-up checks.
 
 5. Deterministic form filling
-   After review, the structured values can be mapped into the existing `fill` config and executed through Playwright against the live form.
+   After review, `npm run draft:prepare -- --reviewed` validates the draft against its source request and maps values to fixed field bindings. It emits a `submit: false` config with all row/field existence checks before edits. Users add any extra expense rows manually before running `fill`.
 
 ## Trust Boundary
 
@@ -111,7 +111,7 @@ Not included by default:
 Forks can extend V0.2 in a few clean ways:
 
 - add richer OCR or table extraction upstream of the LLM
-- add institution-specific draft-to-form transforms
+- extend the built-in HKUST draft-to-form transform for additional form variants
 - add domain prompts for common claim categories
 - add stricter JSON Schema validation or policy checks
 

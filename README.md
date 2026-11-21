@@ -120,6 +120,27 @@ npm run check:draft
 
 More detail:
 
+After extraction, inspect `artifacts/claim-draft.latest.json`, check the amounts,
+currencies, dates, and review warnings, and resolve any `null` fields. Then:
+
+```bash
+npm run check:draft -- --request artifacts/extract-request.latest.json --ready
+npm run draft:prepare -- --reviewed
+npm run check
+npm run fill
+```
+
+`--reviewed` acknowledges your review; missing fields and invalid receipt
+provenance still block conversion. Generated configs only attach files from the
+matching extraction request and always set `submit: false`. Existing output is
+preserved unless you explicitly pass `--force`. For multiple expenses, manually
+add enough rows in the browser first; the generated steps check that all target
+fields exist before editing. Mock output is for integration testing only.
+
+Enable `textExtraction.enableOcrForPdfs` for image-only scanned PDFs or
+`textExtraction.enableOcrForImages` for PNG/JPEG receipts. See the
+[LLM workflow guide](docs/LLM_WORKFLOW.md) for setup, limits, and review steps.
+
 - `docs/V0_2_LLM_ARCHITECTURE.md`
 - `docs/MODEL_INTEGRATION.md`
 
@@ -147,6 +168,8 @@ More detail:
   A small local config validator.
 - `scripts/check-draft.mjs`
   Validates the structured draft returned by a model wrapper.
+- `scripts/draft-to-config.mjs`
+  Converts a reviewed draft to deterministic form-filling steps.
 - `config/claim.sample.json`
   A safe sample config with fake values.
 - `config/extraction.sample.json`

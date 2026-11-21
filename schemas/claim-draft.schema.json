@@ -3,16 +3,24 @@
   "$id": "https://example.com/hkust-student-expense-agent/claim-draft.schema.json",
   "title": "Claim Draft",
   "type": "object",
+  "additionalProperties": false,
   "required": [
     "line_items",
     "open_questions",
     "summary"
   ],
   "properties": {
+    "source_request_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Extraction request ID assigned by the runner."
+    },
     "line_items": {
       "type": "array",
       "items": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "receipt_ids",
           "expense_type",
@@ -31,40 +39,92 @@
           "receipt_ids": {
             "type": "array",
             "items": {
-              "type": "string"
-            }
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "minItems": 1,
+            "uniqueItems": true
           },
           "expense_type": {
-            "type": "string"
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "pattern": "\\S",
+            "description": "Use null when unknown; do not invent a value."
           },
           "date_from": {
-            "type": "string",
-            "description": "ISO date in YYYY-MM-DD format."
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Real calendar date in YYYY-MM-DD, or null when unknown."
           },
           "date_to": {
-            "type": "string",
-            "description": "ISO date in YYYY-MM-DD format."
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Real calendar date in YYYY-MM-DD, or null when unknown."
           },
           "currency": {
-            "type": "string"
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[A-Z]{3}$"
           },
           "amount": {
-            "type": "number"
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "description": "Receipt amount without rounding; null when unknown."
           },
           "business_purpose": {
-            "type": "string"
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "pattern": "\\S",
+            "description": "Use null when unknown; do not invent a value."
           },
           "particular": {
-            "type": "string"
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "pattern": "\\S",
+            "description": "Use null when unknown; do not invent a value."
           },
           "justification": {
-            "type": "string"
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "pattern": "\\S",
+            "description": "Use null when unknown; do not invent a value."
           },
           "attachments": {
             "type": "array",
             "items": {
-              "type": "string"
-            }
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "minItems": 1,
+            "uniqueItems": true,
+            "description": "Exact original request paths for supporting receipt_ids."
           },
           "confidence": {
             "type": "number",
@@ -74,7 +134,9 @@
           "review_notes": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
             }
           }
         }
@@ -83,11 +145,14 @@
     "open_questions": {
       "type": "array",
       "items": {
-        "type": "string"
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
       }
     },
     "summary": {
       "type": "object",
+      "additionalProperties": false,
       "required": [
         "estimated_total_by_currency",
         "notes"
@@ -95,18 +160,25 @@
       "properties": {
         "estimated_total_by_currency": {
           "type": "array",
+          "description": "One entry per known line-item currency. Unknown-currency items are unresolved and omitted. Complete currency totals must match the line-item sum; null totals are required only when a corresponding line-item amount is null. Arithmetic checks are enforced by the shared validator.",
           "items": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "currency",
               "total"
             ],
             "properties": {
               "currency": {
-                "type": "string"
+                "type": "string",
+                "pattern": "^[A-Z]{3}$"
               },
               "total": {
-                "type": "number"
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0
               }
             }
           }
@@ -114,7 +186,9 @@
         "notes": {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
           }
         }
       }
